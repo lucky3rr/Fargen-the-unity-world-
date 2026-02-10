@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Fragen Game | Gamer Loading Screen</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+        }
+
+        /* Full Screen Background Image */
+        .full-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://lh3.googleusercontent.com/d/13Dv9alHwHNa2BM0cdKjRFxs-27zp1Yv4');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: 1;
+            animation: bgPulse 10s infinite alternate;
+        }
+
+        @keyframes bgPulse {
+            0% { filter: brightness(0.8) contrast(1); }
+            100% { filter: brightness(1) contrast(1.1); }
+        }
+
+        /* Overlay for Loading Bar at Bottom */
+        .ui-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, rgba(0,0,0,0.95) 10%, transparent 50%);
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            padding-bottom: 60px;
+        }
+
+        .loading-wrapper {
+            width: 80%;
+            max-width: 800px;
+        }
+
+        .game-title {
+            color: #fff;
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px rgba(0, 210, 255, 0.7);
+            animation: titleGlow 2s infinite alternate;
+        }
+
+        @keyframes titleGlow {
+            0% { text-shadow: 0 0 10px rgba(0, 210, 255, 0.7); }
+            100% { text-shadow: 0 0 20px rgba(0, 210, 255, 1), 0 0 30px rgba(58, 123, 213, 0.5); }
+        }
+
+        .status-text {
+            color: #00d2ff;
+            font-size: 16px;
+            letter-spacing: 3px;
+            margin-bottom: 15px;
+            text-align: left;
+            font-weight: bold;
+            text-transform: uppercase;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* The Loading Bar */
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #00d2ff, #3a7bd5, #00d2ff);
+            background-size: 200% 100%;
+            box-shadow: 0 0 15px #00d2ff, 0 0 30px rgba(0, 210, 255, 0.3);
+            animation: fillBar 5s linear forwards, shimmer 2s infinite linear;
+            border-radius: 10px;
+        }
+
+        @keyframes fillBar {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        .loading-messages {
+            color: #88e1ff;
+            font-size: 14px;
+            margin-top: 20px;
+            height: 100px;
+            overflow: hidden;
+            border-left: 2px solid #00d2ff;
+            padding-left: 15px;
+        }
+
+        .message {
+            margin-bottom: 8px;
+            opacity: 0;
+            animation: messageFade 0.5s forwards;
+        }
+
+        @keyframes messageFade {
+            to { opacity: 1; }
+        }
+
+        .system-info {
+            color: #aaa;
+            font-size: 12px;
+            text-align: center;
+            margin-top: 30px;
+            letter-spacing: 1px;
+        }
+
+        /* Game Container */
+        .game-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            display: none;
+            background: #000;
+        }
+
+        .game-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 11;
+            border-bottom: 1px solid #00d2ff;
+        }
+
+        .back-btn {
+            background: linear-gradient(45deg, #00d2ff, #3a7bd5);
+            border: none;
+            border-radius: 20px;
+            color: white;
+            padding: 8px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .back-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(0, 210, 255, 0.7);
+        }
+
+        .game-title-small {
+            color: #00d2ff;
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .game-frame {
+            position: absolute;
+            top: 50px;
+            left: 0;
+            width: 100%;
+            height: calc(100% - 50px);
+            border: none;
+        }
+
+        /* Mobile Landscape Message */
+        @media screen and (orientation: portrait) {
+            .rotate-msg {
+                display: flex;
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            .loading-wrapper {
+                width: 90%;
+            }
+            
+            .game-title {
+                font-size: 18px;
+                margin-bottom: 20px;
+            }
+            
+            .ui-overlay {
+                padding-bottom: 30px;
+            }
+            
+            .game-header {
+                height: 40px;
+                padding: 0 10px;
+            }
+            
+            .back-btn {
+                padding: 6px 15px;
+                font-size: 12px;
+            }
+            
+            .game-title-small {
+                font-size: 14px;
+            }
+            
+            .game-frame {
+                top: 40px;
+                height: calc(100% - 40px);
+            }
+        }
+
+        .rotate-msg {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            color: #00d2ff;
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            font-size: 24px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .rotate-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            animation: rotate 2s infinite linear;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(90deg); }
+        }
+
+        /* Loading complete effect */
+        .complete-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 3;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: #00d2ff;
+            font-size: 36px;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+        }
+
+        .continue-btn {
+            margin-top: 30px;
+            padding: 15px 40px;
+            background: linear-gradient(45deg, #00d2ff, #3a7bd5);
+            border: none;
+            border-radius: 30px;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .continue-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.7);
+        }
+
+        /* Controls info */
+        .controls-info {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: #88e1ff;
+            font-size: 12px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 12;
+        }
+
+        /* Fullscreen button */
+        .fullscreen-btn {
+            position: absolute;
+            top: 60px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #00d2ff;
+            color: #00d2ff;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 12;
+            transition: all 0.3s;
+        }
+
+        .fullscreen-btn:hover {
+            background: rgba(0, 210, 255, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="rotate-msg">
+        <div class="rotate-icon">↻</div>
+        <h1>PLEASE ROTATE YOUR DEVICE<br>TO LANDSCAPE MODE</h1>
+    </div>
+
+    <div class="complete-overlay">
+        <div class="loading-complete">LOADING COMPLETE</div>
+        <button class="continue-btn" onclick="enterGame()">PLAY FRAGEN GAME</button>
+        <div style="color: #88e1ff; font-size: 16px; margin-top: 20px; text-transform: none; letter-spacing: 1px;">
+            Get ready for an exciting puzzle adventure!
+        </div>
+    </div>
+
+    <div class="game-container" id="gameContainer">
+        <div class="game-header">
+            <button class="back-btn" onclick="backToHome()">← BACK</button>
+            <div class="game-title-small">FRAGEN GAME</div>
+            <div style="width: 80px;"></div> <!-- Spacer for alignment -->
+        </div>
+        <button class="fullscreen-btn" onclick="toggleFullscreen()">FULLSCREEN</button>
+        <iframe 
+            class="game-frame" 
+            id="gameFrame"
+            src="https://www.miniplay.com/game/fragen/play" 
+            allowfullscreen 
+            scrolling="no"
+            frameborder="0"
+            sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+        ></iframe>
+        <div class="controls-info">
+            Use Mouse/Touch to Play • ESC to Exit Fullscreen
+        </div>
+    </div>
+
+    <div class="full-bg"></div>
+
+    <div class="ui-overlay">
+        <div class="loading-wrapper">
+            <div class="game-title" id="gameTitle">FRAGEN GAME LOADER</div>
+            
+            <div class="status-text">
+                <span>SYSTEM INITIALIZATION</span>
+                <span id="percent">0%</span>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar"></div>
+            </div>
+            
+            <div class="loading-messages" id="messages">
+                <!-- Messages will be inserted here by JavaScript -->
+            </div>
+            
+            <div class="system-info">
+                © 2024 MINIPLAY.COM | GAME VERSION: FRAGEN
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let p = 0;
+        let txt = document.getElementById('percent');
+        let messagesDiv = document.getElementById('messages');
+        let gameTitle = document.getElementById('gameTitle');
+        let gameContainer = document.getElementById('gameContainer');
+        let gameFrame = document.getElementById('gameFrame');
+        
+        let messages = [
+            "Initializing graphics subsystem...",
+            "Loading puzzle assets...",
+            "Connecting to Miniplay servers...",
+            "Loading Fragen game data...",
+            "Verifying game integrity...",
+            "Setting up audio system...",
+            "Preparing puzzle mechanics...",
+            "Loading question database...",
+            "Initializing scoring system...",
+            "Synchronizing with game cloud...",
+            "Optimizing performance...",
+            "Finalizing game initialization..."
+        ];
+
+        let messageIndex = 0;
+        let messagesInterval;
+
+        function updateMessage() {
+            if (messageIndex < messages.length) {
+                let message = document.createElement('div');
+                message.className = 'message';
+                message.textContent = `> ${messages[messageIndex]}`;
+                messagesDiv.appendChild(message);
+                
+                // Scroll to bottom
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                
+                messageIndex++;
+            } else {
+                clearInterval(messagesInterval);
+            }
+        }
+
+        // Update messages every 400ms
+        messagesInterval = setInterval(updateMessage, 400);
+
+        let interval = setInterval(() => {
+            p++;
+            txt.innerText = `${p}%`;
+            
+            // Dynamic title color based on progress
+            if (p > 30) {
+                gameTitle.style.color = '#3a7bd5';
+            }
+            if (p > 60) {
+                gameTitle.style.color = '#00d2ff';
+            }
+            if (p > 85) {
+                gameTitle.style.color = '#00ff88';
+            }
+            
+            if(p >= 100) {
+                clearInterval(interval);
+                clearInterval(messagesInterval);
+                
+                // Add final message
+                let finalMessage = document.createElement('div');
+                finalMessage.className = 'message';
+                finalMessage.textContent = "> SYSTEM READY - GAME LOADED";
+                finalMessage.style.color = '#00ff88';
+                messagesDiv.appendChild(finalMessage);
+                
+                // Show complete screen after delay
+                setTimeout(() => {
+                    document.querySelector('.complete-overlay').style.display = 'flex';
+                    document.querySelector('.progress-bar').style.animation = "none";
+                    document.querySelector('.progress-bar').style.width = "100%";
+                }, 1000);
+            }
+        }, 50);
+
+        function enterGame() {
+            // Hide loading screen and show game
+            document.querySelector('.complete-overlay').style.display = 'none';
+            document.querySelector('.full-bg').style.display = 'none';
+            document.querySelector('.ui-overlay').style.display = 'none';
+            
+            // Show game container
+            gameContainer.style.display = 'block';
+            
+            // Add a small delay to ensure iframe loads properly
+            setTimeout(() => {
+                gameFrame.contentWindow.focus();
+            }, 500);
+        }
+
+        function backToHome() {
+            // Hide game container
+            gameContainer.style.display = 'none';
+            
+            // Show loading screen again
+            document.querySelector('.full-bg').style.display = 'block';
+            document.querySelector('.ui-overlay').style.display = 'flex';
+            document.querySelector('.complete-overlay').style.display = 'flex';
+        }
+
+        function toggleFullscreen() {
+            const elem = document.documentElement;
+            
+            if (!document.fullscreenElement) {
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                } else if (elem.webkitRequestFullscreen) {
+                    elem.webkitRequestFullscreen();
+                } else if (elem.msRequestFullscreen) {
+                    elem.msRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            }
+        }
+
+        // Check orientation
+        function checkOrientation() {
+            if (window.innerHeight > window.innerWidth) {
+                document.querySelector('.rotate-msg').style.display = 'flex';
+            } else {
+                document.querySelector('.rotate-msg').style.display = 'none';
+            }
+        }
+
+        // Fullscreen change event
+        document.addEventListener('fullscreenchange', updateFullscreenButton);
+        document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
+        document.addEventListener('msfullscreenchange', updateFullscreenButton);
+
+        function updateFullscreenButton() {
+            const fullscreenBtn = document.querySelector('.fullscreen-btn');
+            if (document.fullscreenElement || 
+                document.webkitFullscreenElement || 
+                document.msFullscreenElement) {
+                fullscreenBtn.textContent = 'EXIT FULLSCREEN';
+                fullscreenBtn.style.top = '10px';
+            } else {
+                fullscreenBtn.textContent = 'FULLSCREEN';
+                fullscreenBtn.style.top = '60px';
+            }
+        }
+
+        // ESC key to exit fullscreen
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (document.fullscreenElement || 
+                    document.webkitFullscreenElement || 
+                    document.msFullscreenElement) {
+                    toggleFullscreen();
+                }
+            }
+        });
+
+        // Initial check
+        checkOrientation();
+        
+        // Check on resize and orientation change
+        window.addEventListener('resize', checkOrientation);
+        window.addEventListener('orientationchange', checkOrientation);
+
+        // Auto-start game after loading (optional - remove if you want manual start)
+        // setTimeout(() => {
+        //     if (p >= 100) {
+        //         enterGame();
+        //     }
+        // }, 6000);
+    </script>
+
+</body>
+</html>
